@@ -4,7 +4,7 @@ import django.db.models.deletion
 from django.conf import settings
 from django.db import migrations, models
 
-# This migration file manages the voting feature
+
 class Migration(migrations.Migration):
 
     dependencies = [
