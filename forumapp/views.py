@@ -21,7 +21,7 @@ def homepage(request):
     posts = Post.objects.annotate(
         upvotes=Count('votes', filter=Q(votes__value=1)),
         downvotes=Count('votes', filter=Q(votes__value=-1))
-    ).select_related('author', 'category').prefetch_related('comments')
+    ).select_related('author', 'category').prefetch_related('comments').order_by('-id')
 
     categories = Category.objects.annotate(post_count=Count('post')).order_by('-post_count')
 
