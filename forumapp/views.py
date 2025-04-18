@@ -158,6 +158,10 @@ def signup(request):
         form = UserCreationForm()
     return render(request, 'signup.html', {'form': form})
 
+def signin(request):
+
+    return render(request, 'login.html')
+
 # Added @login_required to ensure only logged-in users can add comments.
 @login_required
 def add_comment(request, post_id):
