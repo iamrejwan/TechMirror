@@ -6,8 +6,11 @@ from .models import UserProfile
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        Profile.objects.create(user=instance)
+        # Use get_or_create to avoid duplicate profile creation.
+        UserProfile.objects.get_or_create(user=instance)
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
+    # Check that the user has a profile attribute before saving.
+    if hasattr(instance, 'profile'):
+        instance.profile.save()

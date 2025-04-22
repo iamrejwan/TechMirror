@@ -12,7 +12,7 @@
     <nav class="bg-gray-800 text-white shadow-lg">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-2">
-                <a href="dashboard.html" class="flex items-center space-x-2">
+                <a href="{% url 'homepage' %}" class="flex items-center space-x-2">
                     <i class="fas fa-code text-blue-400 text-2xl"></i>
                     <span class="font-bold text-xl">Tech Mirror</span>
                 </a>
@@ -34,26 +34,39 @@
                     <i class="fas fa-plus mr-1"></i> New Post
                 </a>
                 
+                {% if user.is_authenticated %}
                 <div class="relative" id="userMenuContainer">
                     <button class="flex items-center space-x-2" id="userMenuButton">
+                        <!-- You could dynamically load the user's avatar if available -->
                         <img src="https://via.placeholder.com/40" alt="User Avatar" class="w-8 h-8 rounded-full">
-                        <span class="hidden md:inline">JohnDoe</span>
+                        <span class="hidden md:inline">{{ user.username }}</span>
                         <i class="fas fa-chevron-down text-sm"></i>
                     </button>
                     
                     <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10 hidden" id="userMenu">
-                        <a href="profile.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                        <!-- Updated profile link using Django's url tag -->
+                        <a href="{% url 'user_profile' user.username %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
                             <i class="fas fa-user mr-2"></i> Profile
                         </a>
-                        <a href="settings.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                        <a href="{% url 'settings' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
                             <i class="fas fa-cog mr-2"></i> Settings
                         </a>
                         <div class="border-t border-gray-200 my-1"></div>
-                        <a href="index.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                        <a href="{% url 'logout' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
                             <i class="fas fa-sign-out-alt mr-2"></i> Logout
                         </a>
                     </div>
                 </div>
+                {% else %}
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'login' %}" class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg">
+                        Login
+                    </a>
+                    <a href="{% url 'signup' %}" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg">
+                        Sign Up
+                    </a>
+                </div>
+                {% endif %}
             </div>
         </div>
     </nav>
@@ -68,27 +81,43 @@
         </div>
     </div>
 
-        <!-- Footer -->
-        <footer class="bg-gray-900 text-white py-8 mt-8">
-            <div class="container mx-auto px-4">
-                <div class="flex flex-col md:flex-row justify-between items-center">
-                    <div class="mb-4 md:mb-0">
-                        <div class="flex items-center space-x-2">
-                            <i class="fas fa-code text-blue-400"></i>
-                            <span class="font-bold">Tech Mirror</span>
-                        </div>
-                        <p class="text-gray-400 mt-2">© 2023 Tech Mirror. All rights reserved.</p>
+    <!-- Content Block -->
+    <div>
+        {% block content %}
+        <!-- Page specific content will go here -->
+        {% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-code text-blue-400"></i>
+                        <span class="font-bold">Tech Mirror</span>
                     </div>
-                    
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-github"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin"></i></a>
-                    </div>
+                    <p class="text-gray-400 mt-2">© 2023 Tech Mirror. All rights reserved.</p>
+                </div>
+                
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-github"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin"></i></a>
                 </div>
             </div>
-        </footer>
+        </div>
+    </footer>
     
-        
-    </body>
-    </html>
+    <script>
+      // Example JavaScript to toggle the user menu dropdown
+      const userMenuButton = document.getElementById('userMenuButton');
+      const userMenu = document.getElementById('userMenu');
+      if(userMenuButton) {
+          userMenuButton.addEventListener('click', () => {
+              userMenu.classList.toggle('hidden');
+          });
+      }
+    </script>
+</body>
+</html>
