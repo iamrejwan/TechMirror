@@ -17,12 +17,20 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.auth import views as auth_views
 from forumapp import views  # Import views to use the user_profile view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # Add a URL pattern for the user profile that expects a username.
+
+    # Authentication URLs
+    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='homepage'), name='logout'),
+    path('accounts/', include('django.contrib.auth.urls')),
+
+    # Custom views
     path('profile/<str:username>/', views.user_profile, name='user_profile'),
-    # Include all other URLs from the forumapp.
+
+    # App URLs
     path('', include("forumapp.urls")),
 ]

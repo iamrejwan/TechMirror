@@ -1,5 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Count, Q
@@ -16,6 +16,7 @@ from django.utils.timezone import timedelta, now
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import TrendingTopicSerializer
+
 
 def homepage(request):
     posts = Post.objects.annotate(
@@ -51,6 +52,7 @@ def homepage(request):
         'user_bookmarks': user_bookmarks,
     })
 
+
 def post_detail(request, post_id):
     post = get_object_or_404(
         Post.objects.select_related('author__profile', 'category')
@@ -77,6 +79,7 @@ def post_detail(request, post_id):
         'comments': comments,
         'is_bookmarked': is_bookmarked,
     })
+
 
 @login_required
 @require_POST
@@ -111,6 +114,7 @@ def vote_post(request, post_id):
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('post-detail', args=[post.id])))
 
+
 @login_required
 def bookmark_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
@@ -125,6 +129,7 @@ def bookmark_post(request, post_id):
         return JsonResponse({'bookmarked': True, 'message': 'Post bookmarked'})
     
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
 
 logger = logging.getLogger(__name__)
 
@@ -147,6 +152,7 @@ def createPost(request):
     categories = Category.objects.all()
     return render(request, 'create-post.html', {'form': form, 'categories': categories})
 
+
 def signup(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
@@ -158,9 +164,20 @@ def signup(request):
         form = UserCreationForm()
     return render(request, 'signup.html', {'form': form})
 
-def signin(request):
 
+# Signin function was missing implementation, so now we'll keep it for user login
+def signin(request):
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('homepage')
+        else:
+            messages.error(request, "Invalid username or password")
     return render(request, 'login.html')
+
 
 # Added @login_required to ensure only logged-in users can add comments.
 @login_required
@@ -175,6 +192,7 @@ def add_comment(request, post_id):
     Comment.objects.create(post=post, user=request.user, text=comment_text)
     messages.success(request, "Your comment has been posted successfully.")
     return redirect('post-detail', post_id=post.id)
+
 
 def category_posts(request, category_id):
     category = get_object_or_404(Category, id=category_id)
@@ -194,6 +212,7 @@ def category_posts(request, category_id):
         'category': category,
         'posts': posts,
     })
+
 
 def user_profile(request, username):
     user = get_object_or_404(User, username=username)
@@ -220,6 +239,7 @@ def user_profile(request, username):
 
     return render(request, 'user_profile.html', context)
 
+
 @login_required
 def update_avatar(request, username):
     user = get_object_or_404(User, username=username)
@@ -235,11 +255,13 @@ def update_avatar(request, username):
 
     return redirect('user_profile', username=user.username)
 
+
 @api_view(['GET'])
 def trending_topics_api(request):
     trending_topics = get_trending_topics()
     serializer = TrendingTopicSerializer(trending_topics, many=True)
     return Response(serializer.data)
+
 
 def get_trending_topics():
     last_24_hours = now() - timedelta(hours=24)
